@@ -1,0 +1,19 @@
+{
+  "name": "amplepro-organic-commerce",
+  "private": true,
+  "version": "0.1.0",
+  "description": "White-label organic foods e-commerce platform for Amplepro clients.",
+  "workspaces": ["client", "server"],
+  "scripts": {
+    "dev": "npm run dev --workspaces --if-present",
+    "dev:client": "npm run dev -w client",
+    "dev:server": "npm run dev -w server",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3"
+  }
+}
