@@ -13,7 +13,10 @@ const loginSchema = z.object({
 
 authRouter.post("/register", (req, res) => {
   const body = loginSchema.extend({ name: z.string().min(2) }).parse(req.body);
-  res.status(201).json({ message: "Registration endpoint scaffolded", user: { email: body.email, name: body.name } });
+  res.status(201).json({
+    data: { user: { email: body.email, name: body.name } },
+    message: "Registration endpoint scaffolded"
+  });
 });
 
 authRouter.post("/login", (req, res) => {
@@ -21,14 +24,14 @@ authRouter.post("/login", (req, res) => {
   const role = body.email.includes("admin") ? "ADMIN" : "CUSTOMER";
   const accessToken = jwt.sign({ sub: body.email, role }, env.JWT_ACCESS_SECRET, { expiresIn: "15m" });
 
-  res.json({ accessToken, user: { email: body.email, role } });
+  res.json({ data: { accessToken, user: { email: body.email, role } } });
 });
 
 authRouter.get("/me", authenticate, (req: AuthenticatedRequest, res) => {
-  res.json({ user: req.user });
+  res.json({ data: { user: req.user } });
 });
 
 authRouter.post("/logout", (_req, res) => {
   res.clearCookie("refreshToken");
-  res.json({ message: "Logged out" });
+  res.json({ data: null, message: "Logged out" });
 });

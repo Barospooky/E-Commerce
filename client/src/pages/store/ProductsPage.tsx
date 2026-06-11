@@ -1,8 +1,9 @@
+import { useQuery } from "@tanstack/react-query";
 import { Search } from "lucide-react";
 import { useDeferredValue, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { fetchCategories, fetchProducts } from "../../api/products";
 import ProductCard from "../../components/store/ProductCard";
-import { categories, products } from "../../data/products";
 
 export default function ProductsPage() {
   const [params, setParams] = useSearchParams();
@@ -10,15 +11,28 @@ export default function ProductsPage() {
   const deferredQuery = useDeferredValue(query);
   const activeCategory = params.get("filter") ?? "all";
 
-  const filteredProducts = useMemo(() => {
-    return products.filter((product) => {
-      const matchesCategory = activeCategory === "all" || product.category === activeCategory;
-      const matchesQuery = `${product.name} ${product.description} ${product.tags.join(" ")}`
-        .toLowerCase()
-        .includes(deferredQuery.toLowerCase());
-      return matchesCategory && matchesQuery;
-    });
-  }, [activeCategory, deferredQuery]);
+  const categoriesQuery = useQuery({
+    queryKey: ["categories"],
+    queryFn: fetchCategories
+  });
+
+  const productsQuery = useQuery({
+    queryKey: ["products", activeCategory, deferredQuery],
+    queryFn: () =>
+      fetchProducts({
+        category: activeCategory === "all" ? undefined : activeCategory,
+        q: deferredQuery
+      })
+  });
+
+  const filteredProducts = useMemo(() => productsQuery.data?.data ?? [], [productsQuery.data]);
+  const categories = categoriesQuery.data?.data ?? [
+    { id: "all" as const, label: "All harvest" },
+    { id: "vegetables" as const, label: "Vegetables" },
+    { id: "fruits" as const, label: "Fruits" },
+    { id: "grains" as const, label: "Grains" },
+    { id: "pantry" as const, label: "Pantry" }
+  ];
 
   return (
     <section className="mx-auto max-w-7xl px-5 py-14 lg:px-8">
@@ -43,16 +57,24 @@ export default function ProductsPage() {
           <button
             key={category.id}
             onClick={() => setParams(category.id === "all" ? {} : { filter: category.id })}
-            className={`whitespace-nowrap rounded-full px-5 py-3 text-sm font-bold transition ${activeCategory === category.id ? "bg-leaf text-white shadow-card" : "bg-white text-soil/64 hover:text-soil"}`}
+            className={`whitespace-nowrap rounded-full px-5 py-3 text-sm font-bold transition ${
+              activeCategory === category.id ? "bg-leaf text-white shadow-card" : "bg-white text-soil/64 hover:text-soil"
+            }`}
           >
             {category.label}
           </button>
         ))}
       </div>
 
-      <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {filteredProducts.map((product) => <ProductCard key={product.id} product={product} />)}
-      </div>
+      {productsQuery.isLoading ? (
+        <div className="mt-8 rounded-[2rem] border border-soil/10 bg-white p-8 text-soil/60">Loading products...</div>
+      ) : (
+        <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {filteredProducts.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+      )}
     </section>
   );
 }

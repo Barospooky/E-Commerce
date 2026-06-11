@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { catalog } from "../data/mockCatalog";
+import { getProductBySlug, listCategories, listProducts } from "../data/catalogStore";
 
 export const productRouter = Router();
 
@@ -7,9 +7,14 @@ productRouter.get("/", (req, res) => {
   const category = req.query.category?.toString();
   const q = req.query.q?.toString().toLowerCase();
 
-  const products = catalog.filter((product) => {
+  const products = listProducts().filter((product) => {
+    if (!product.isActive) {
+      return false;
+    }
+
     const matchesCategory = !category || product.category === category;
-    const matchesQuery = !q || product.name.toLowerCase().includes(q);
+    const matchesQuery =
+      !q || `${product.name} ${product.description} ${product.tags.join(" ")}`.toLowerCase().includes(q);
     return matchesCategory && matchesQuery;
   });
 
@@ -18,13 +23,19 @@ productRouter.get("/", (req, res) => {
 
 productRouter.get("/search", (req, res) => {
   const q = req.query.q?.toString().toLowerCase() ?? "";
-  res.json({ data: catalog.filter((product) => product.name.toLowerCase().includes(q)) });
+  res.json({
+    data: listProducts().filter((product) => product.isActive && product.name.toLowerCase().includes(q))
+  });
+});
+
+productRouter.get("/categories", (_req, res) => {
+  res.json({ data: listCategories() });
 });
 
 productRouter.get("/:slug", (req, res) => {
-  const product = catalog.find((item) => item.slug === req.params.slug);
+  const product = getProductBySlug(req.params.slug);
 
-  if (!product) {
+  if (!product || !product.isActive) {
     res.status(404).json({ message: "Product not found" });
     return;
   }
