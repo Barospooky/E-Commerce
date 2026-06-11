@@ -37,6 +37,21 @@ export async function createAdminProduct(token: string, input: AdminProductInput
   );
 }
 
+export async function fetchAdminProduct(token: string, id: number) {
+  return apiRequest<ApiResponse<ApiProduct>>(`/admin/products/${id}`, {}, token);
+}
+
+export async function updateAdminProduct(token: string, id: number, input: Partial<AdminProductInput>) {
+  return apiRequest<ApiResponse<ApiProduct>>(
+    `/admin/products/${id}`,
+    {
+      method: "PUT",
+      body: JSON.stringify(input)
+    },
+    token
+  );
+}
+
 export async function deleteAdminProduct(token: string, id: number) {
   return apiRequest<ApiResponse<null>>(
     `/admin/products/${id}`,

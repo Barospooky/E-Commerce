@@ -33,47 +33,47 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#10120d] px-4 text-cream">
+    <div className="flex min-h-screen items-center justify-center bg-[#f6f5f1] px-4 text-soil">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-md rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-[0_20px_60px_rgba(0,0,0,0.3)] backdrop-blur"
+        className="w-full max-w-md border border-soil/8 bg-white p-8 shadow-[0_10px_24px_rgba(48,37,29,0.06)]"
       >
         <div className="flex items-center gap-3">
-          <span className="grid h-12 w-12 place-items-center rounded-2xl bg-[#0e8a66] text-white">
+          <span className="grid h-12 w-12 place-items-center bg-[#0b7a57] text-white shadow-[0_10px_20px_rgba(11,122,87,0.18)]">
             <ShieldCheck className="h-6 w-6" />
           </span>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-moss/70">Admin login</p>
-            <h1 className="text-2xl font-bold">Manage the storefront</h1>
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-soil/45">Admin login</p>
+            <h1 className="text-2xl font-bold text-soil">Manage the storefront</h1>
           </div>
         </div>
 
-        <label className="mt-8 block text-sm font-semibold text-cream/80">
+        <label className="mt-8 block text-sm font-semibold text-soil/80">
           Email
           <input
             type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            className="mt-2 w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 outline-none ring-0 transition focus:border-moss"
+            className="mt-2 w-full border border-soil/8 bg-[#f8f7f3] px-4 py-3 text-soil outline-none ring-0 transition focus:border-[#0e8a66]"
           />
         </label>
 
-        <label className="mt-4 block text-sm font-semibold text-cream/80">
+        <label className="mt-4 block text-sm font-semibold text-soil/80">
           Password
           <input
             type="password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            className="mt-2 w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 outline-none ring-0 transition focus:border-moss"
+            className="mt-2 w-full border border-soil/8 bg-[#f8f7f3] px-4 py-3 text-soil outline-none ring-0 transition focus:border-[#0e8a66]"
           />
         </label>
 
-        {error && <p className="mt-4 rounded-2xl bg-red-500/15 px-4 py-3 text-sm text-red-200">{error}</p>}
+          {error && <p className="mt-4 bg-red-500/10 px-4 py-3 text-sm text-red-700">{error}</p>}
 
         <button
           type="submit"
           disabled={loading}
-          className="mt-6 w-full rounded-2xl bg-[#0e8a66] px-4 py-3 font-semibold text-white transition hover:bg-[#0c7256] disabled:cursor-not-allowed disabled:opacity-60"
+          className="mt-6 w-full bg-[#0e8a66] px-4 py-3 font-semibold text-white transition hover:bg-[#0c7256] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading ? "Signing in..." : "Sign in"}
         </button>

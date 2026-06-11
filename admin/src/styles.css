@@ -32,3 +32,75 @@ body {
 input::placeholder {
   opacity: 1;
 }
+
+.admin-sidebar-menu {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.32) transparent;
+  scrollbar-gutter: stable;
+}
+
+.admin-sidebar-menu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.admin-sidebar-menu::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-sidebar-menu::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.admin-sidebar-menu::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.admin-sidebar-menu::-webkit-scrollbar-track-piece {
+  background: transparent;
+}
+
+.admin-sidebar-menu::-webkit-scrollbar-button,
+.admin-sidebar-menu::-webkit-scrollbar-button:single-button,
+.admin-sidebar-menu::-webkit-scrollbar-button:vertical:decrement,
+.admin-sidebar-menu::-webkit-scrollbar-button:vertical:increment {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.admin-content-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(7, 134, 95, 0.4) transparent;
+}
+
+.admin-content-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.admin-content-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-content-scroll::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: rgba(7, 134, 95, 0.36);
+}
+
+.admin-content-scroll::-webkit-scrollbar-track-piece {
+  background: transparent;
+}
+
+.admin-content-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(7, 134, 95, 0.5);
+}
+
+.admin-content-scroll::-webkit-scrollbar-button,
+.admin-content-scroll::-webkit-scrollbar-button:single-button,
+.admin-content-scroll::-webkit-scrollbar-button:vertical:decrement,
+.admin-content-scroll::-webkit-scrollbar-button:vertical:increment {
+  display: none;
+  width: 0;
+  height: 0;
+}

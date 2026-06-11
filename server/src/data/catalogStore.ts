@@ -108,6 +108,10 @@ export function getProductBySlug(slug: string) {
   return products.find((product) => product.slug === slug);
 }
 
+export function getProductById(id: number) {
+  return products.find((product) => product.id === id);
+}
+
 export function createProduct(input: Omit<CatalogProduct, "id" | "slug"> & { slug?: string }) {
   const product: CatalogProduct = {
     ...input,
