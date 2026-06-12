@@ -94,20 +94,22 @@ export default function HomePage() {
           </div>
 
           <aside className="rounded-[1.35rem] bg-white p-3 shadow-[0_10px_24px_rgba(48,37,29,0.06)]">
-            <div className="relative min-h-[296px] overflow-hidden rounded-[1.1rem] bg-[#f0d74a]">
+            <div className="relative min-h-[430px] overflow-hidden rounded-[1.1rem] bg-[#f4cd21]">
               <img
-                src="https://images.unsplash.com/photo-1488459716781-31db52582fe9?auto=format&fit=crop&w=1000&q=85"
-                alt="Fresh fruit in basket"
-                className="absolute inset-0 h-full w-full object-cover"
+                src="https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=1000&q=85"
+                alt="Fresh fruit basket"
+                className="absolute inset-0 h-full w-full object-cover object-top"
               />
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,234,116,0.04)_0%,rgba(255,205,57,0.84)_100%)]" />
-              <div className="absolute bottom-4 left-4 right-4 rounded-[0.95rem] bg-white/10 p-4 text-[#0b7a57] backdrop-blur-sm">
-                <div className="inline-flex rounded-full bg-[#ff7b47] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-white">
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,214,10,0.02)_0%,rgba(249,209,29,0.18)_36%,rgba(245,205,34,0.96)_72%,rgba(244,201,19,1)_100%)]" />
+              <div className="absolute inset-x-0 bottom-0 px-5 pb-6 pt-28 text-left text-[#0e8a66]">
+                <div className="inline-flex rounded-[0.6rem] bg-[#ff6d2d] px-3 py-1 text-[0.72rem] font-bold uppercase tracking-[0.08em] text-white shadow-[0_8px_18px_rgba(255,109,45,0.28)]">
                   Sale
                 </div>
-                <p className="mt-4 text-sm font-medium text-soil/65">Save Up to Flate</p>
-                <h3 className="mt-1 text-2xl font-semibold tracking-[-0.05em] text-[#0b7a57]">Fresh Fruit</h3>
-                <span className="mt-4 inline-flex rounded-full bg-[#ff7b47] px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-white">
+                <p className="mt-5 text-[1.05rem] font-medium text-[#0e8a66]">Save Up to Flate</p>
+                <h3 className="mt-2 text-[2.55rem] font-semibold leading-none tracking-[-0.06em] text-[#0e8a66]">
+                  Fresh Fruit
+                </h3>
+                <span className="mt-6 inline-flex rounded-[0.9rem] bg-[#ff6d2d] px-6 py-3 text-sm font-semibold uppercase tracking-[0.06em] text-white shadow-[0_12px_24px_rgba(255,109,45,0.25)]">
                   Shop Now
                 </span>
               </div>

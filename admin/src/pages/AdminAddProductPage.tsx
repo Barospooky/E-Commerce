@@ -1,5 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ImagePlus, Plus } from "lucide-react";
+import {
+  ArrowLeft,
+  Bold,
+  ChevronRight,
+  ImagePlus,
+  Italic,
+  Link2,
+  List,
+  ListOrdered,
+  Plus,
+  Underline,
+  Upload,
+  X
+} from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -26,6 +39,17 @@ type ProductFormState = {
   description: string;
   tags: string;
   isActive: boolean;
+  shortDescription: string;
+  subCategory: string;
+  brand: string;
+  minimumOrderQuantity: string;
+  hsnCode: string;
+  metaTitle: string;
+  metaDescription: string;
+  metaKeywords: string;
+  isOrganic: boolean;
+  isFeatured: boolean;
+  allowCashOnDelivery: boolean;
 };
 
 const emptyForm: ProductFormState = {
@@ -34,7 +58,7 @@ const emptyForm: ProductFormState = {
   category: "fruits",
   price: "",
   mrp: "",
-  unit: "1 kg",
+  unit: "kg",
   rating: "4.5",
   stock: "",
   badge: "New",
@@ -42,8 +66,37 @@ const emptyForm: ProductFormState = {
   color: "#0e8a66",
   description: "",
   tags: "",
-  isActive: true
+  isActive: true,
+  shortDescription: "",
+  subCategory: "Apples",
+  brand: "Shop Organic",
+  minimumOrderQuantity: "1",
+  hsnCode: "",
+  metaTitle: "",
+  metaDescription: "",
+  metaKeywords: "",
+  isOrganic: true,
+  isFeatured: false,
+  allowCashOnDelivery: false
 };
+
+const categoryOptions: Array<{ value: AdminProductInput["category"]; label: string; subCategories: string[] }> = [
+  { value: "fruits", label: "Fruits", subCategories: ["Apples", "Bananas", "Citrus", "Berries"] },
+  { value: "vegetables", label: "Vegetables", subCategories: ["Leafy Greens", "Roots", "Tomatoes", "Peppers"] },
+  { value: "grains", label: "Grains", subCategories: ["Rice", "Millets", "Pulses", "Flours"] },
+  { value: "pantry", label: "Pantry", subCategories: ["Oils", "Spices", "Sweeteners", "Dry Goods"] }
+];
+
+const unitOptions = ["kg", "g", "L", "ml", "pack", "piece"];
+const imageFallback = "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=900&q=80";
+
+function titleCase(value: string) {
+  return value
+    .split(/[\s-]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(" ");
+}
 
 function formFromProduct(product: ApiProduct): ProductFormState {
   return {
@@ -60,7 +113,18 @@ function formFromProduct(product: ApiProduct): ProductFormState {
     color: product.color,
     description: product.description,
     tags: product.tags.join(", "),
-    isActive: product.isActive
+    isActive: product.isActive,
+    shortDescription: product.description,
+    subCategory: categoryOptions.find((entry) => entry.value === product.category)?.subCategories[0] ?? "General",
+    brand: "Shop Organic",
+    minimumOrderQuantity: "1",
+    hsnCode: "",
+    metaTitle: product.name,
+    metaDescription: product.description,
+    metaKeywords: product.tags.join(", "),
+    isOrganic: true,
+    isFeatured: product.badge.toLowerCase().includes("best") || product.badge.toLowerCase().includes("featured"),
+    allowCashOnDelivery: false
   };
 }
 
@@ -103,18 +167,21 @@ export default function AdminAddProductPage() {
   });
 
   const pageTitle = isEdit ? "Edit Product" : "Add Product";
-  const actionLabel = isEdit ? "Save Changes" : "Add Product";
+  const actionLabel = isEdit ? "Save Changes" : "Publish Product";
+  const categoryMeta = categoryOptions.find((entry) => entry.value === form.category) ?? categoryOptions[0];
 
-  const preview = useMemo(
-    () => ({
-      name: form.name || "Organic Product",
-      category: form.category,
-      price: form.price || "0",
-      stock: form.stock || "0",
-      badge: form.badge || "New",
-      image: form.image || "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=900&q=80"
-    }),
-    [form.badge, form.category, form.image, form.name, form.price, form.stock]
+  const imageGallery = useMemo(() => {
+    const baseImage = form.image.trim() || imageFallback;
+    return [baseImage, baseImage, baseImage];
+  }, [form.image]);
+
+  const tagItems = useMemo(
+    () =>
+      form.tags
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter(Boolean),
+    [form.tags]
   );
 
   function updateField<K extends keyof ProductFormState>(key: K, value: ProductFormState[K]) {
@@ -135,192 +202,378 @@ export default function AdminAddProductPage() {
       rating: Number(form.rating),
       stock: Number(form.stock),
       badge: form.badge.trim(),
-      image: form.image.trim(),
+      image: form.image.trim() || imageFallback,
       color: form.color.trim(),
       description: form.description.trim(),
-      tags: form.tags
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter(Boolean),
+      tags: tagItems,
       isActive: form.isActive
     });
   }
 
   return (
-    <div className="grid gap-4 text-soil xl:grid-cols-[1.08fr_0.92fr]">
-      <section className="rounded-[20px] bg-white p-5 shadow-[0_10px_24px_rgba(48,37,29,0.06)]">
-        <div className="flex items-start justify-between gap-3">
+    <div className="space-y-5 text-soil">
+      <section className="flex flex-col gap-4 rounded-[22px] bg-white px-6 py-5 shadow-[0_12px_30px_rgba(48,37,29,0.06)]">
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div>
-            <p className="text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-[#0e8a66]">Products</p>
-            <h1 className="mt-2 text-[1.7rem] font-semibold tracking-[-0.04em] text-soil">{pageTitle}</h1>
-            <p className="mt-1 text-sm text-soil/70">{isEdit ? "Update the existing product details." : "Add new product to your store."}</p>
-          </div>
-          <button
-            type="submit"
-            form="product-form"
-            disabled={saveMutation.isPending}
-            className="rounded-[12px] bg-[#ff7b47] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_8px_18px_rgba(255,123,71,0.18)] disabled:opacity-60"
-          >
-            <Plus className="h-4 w-4" />
-            {saveMutation.isPending ? "Saving..." : actionLabel}
-          </button>
-        </div>
-
-        <form id="product-form" onSubmit={handleSubmit} className="mt-5 grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
-          <div className="grid gap-3">
-            <SectionInput label="Product Name" value={form.name} onChange={(value) => updateField("name", value)} />
-            <div className="grid gap-3 md:grid-cols-2">
-              <SectionInput label="Price (USD)" value={form.price} onChange={(value) => updateField("price", value)} />
-              <SectionInput label="SKU" value={form.slug} onChange={(value) => updateField("slug", value)} />
+            <div className="flex flex-wrap items-center gap-2 text-sm text-soil/55">
+              <span>Dashboard</span>
+              <ChevronRight className="h-4 w-4" />
+              <span>Products</span>
+              <ChevronRight className="h-4 w-4" />
+              <span className="font-medium text-soil">{pageTitle}</span>
             </div>
-            <SectionInput
-              label="Short Description"
-              value={form.description}
-              onChange={(value) => updateField("description", value)}
-            />
-            <div className="rounded-[16px] border border-soil/8 bg-[#faf8f4] p-3">
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-sm font-medium text-soil/70">Full Description</span>
-                <div className="flex items-center gap-2 text-soil/45">
-                  <span className="grid h-7 w-7 place-items-center rounded-md border border-soil/8">B</span>
-                  <span className="grid h-7 w-7 place-items-center rounded-md border border-soil/8">I</span>
-                  <span className="grid h-7 w-7 place-items-center rounded-md border border-soil/8">U</span>
-                </div>
-              </div>
-              <textarea
-                value={form.description}
-                onChange={(event) => updateField("description", event.target.value)}
-                rows={5}
-                className="mt-3 w-full resize-none rounded-[12px] border border-soil/8 bg-white px-4 py-3 text-sm outline-none"
-              />
-            </div>
-
-            <div className="grid gap-3 md:grid-cols-2">
-              <SelectField
-                label="Category"
-                value={form.category}
-                options={["fruits", "vegetables", "grains", "pantry"]}
-                onChange={(value) => updateField("category", value as AdminProductInput["category"])}
-              />
-              <SectionInput label="Brand Color" value={form.color} onChange={(value) => updateField("color", value)} />
-            </div>
-            <div className="grid gap-3 md:grid-cols-2">
-              <SectionInput label="Stock" value={form.stock} onChange={(value) => updateField("stock", value)} />
-              <SelectField
-                label="Status"
-                value={form.isActive ? "Active" : "Inactive"}
-                options={["Active", "Inactive"]}
-                onChange={(value) => updateField("isActive", value === "Active")}
-              />
-            </div>
-            <SectionInput label="Tags" value={form.tags} onChange={(value) => updateField("tags", value)} />
-            <SectionInput label="Image URL" value={form.image} onChange={(value) => updateField("image", value)} />
-            <div className="grid gap-3 md:grid-cols-2">
-              <SectionInput label="Unit" value={form.unit} onChange={(value) => updateField("unit", value)} />
-              <SectionInput label="Rating" value={form.rating} onChange={(value) => updateField("rating", value)} />
-            </div>
+            <h1 className="mt-3 text-[2rem] font-semibold tracking-[-0.05em] text-soil">{pageTitle}</h1>
+            <p className="mt-1 text-sm text-soil/70">
+              {isEdit ? "Update the product details and publish the latest changes." : "Add new product to your store."}
+            </p>
           </div>
 
-          <div className="grid gap-3">
-            <div className="rounded-[18px] border border-soil/8 bg-white p-4 shadow-[0_8px_18px_rgba(48,37,29,0.04)]">
-              <div className="flex items-center justify-between">
-                <h2 className="text-[1rem] font-semibold text-soil">Product Images</h2>
-                <span className="rounded-full bg-[#e5f7e8] px-2.5 py-1 text-[0.72rem] font-medium text-[#0e8a66]">Preview</span>
-              </div>
-
-              <div className="mt-4 grid grid-cols-3 gap-2">
-                {Array.from({ length: 3 }).map((_, index) => (
-                  <div
-                    key={index}
-                    className="aspect-square overflow-hidden rounded-[14px] border border-soil/8 bg-[linear-gradient(135deg,#e3f5df,#fff2df)]"
-                  />
-                ))}
-              </div>
-
-              <div className="mt-3 grid h-[150px] place-items-center rounded-[18px] border border-dashed border-soil/15 bg-[#faf8f4] text-center">
-                <div className="grid place-items-center gap-2 text-soil/55">
-                  <ImagePlus className="h-6 w-6" />
-                  <span className="text-sm font-medium">Upload Images</span>
-                  <span className="text-xs">Paste image URLs into the form on the left</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid gap-3 rounded-[18px] border border-soil/8 bg-white p-4 shadow-[0_8px_18px_rgba(48,37,29,0.04)]">
-              <div className="flex items-center justify-between">
-                <h2 className="text-[1rem] font-semibold text-soil">Quick Summary</h2>
-                <span className="text-xs font-medium text-soil/45">Live preview</span>
-              </div>
-              <div className="space-y-3">
-                <div className="overflow-hidden rounded-[16px] border border-soil/8 bg-[#faf8f4]">
-                  <img src={preview.image} alt={preview.name} className="h-44 w-full object-cover" />
-                </div>
-                <div>
-                  <p className="text-[1rem] font-semibold text-soil">{preview.name}</p>
-                  <p className="mt-1 text-sm text-soil/70">
-                    {preview.category} - {form.unit || "1 kg"} - {form.isActive ? "Active" : "Inactive"}
-                  </p>
-                </div>
-                <div className="grid gap-2 text-sm text-soil/70">
-                  <InfoRow label="Price" value={`₹${form.price || "0"}`} />
-                  <InfoRow label="MRP" value={`₹${form.mrp || "0"}`} />
-                  <InfoRow label="Stock" value={form.stock || "0"} />
-                  <InfoRow label="Badge" value={preview.badge} />
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-2">
-              {Array.from({ length: 3 }).map((_, index) => (
-                <div key={index} className="aspect-square rounded-[14px] bg-[linear-gradient(135deg,#eff7e8,#fff6e7)] shadow-[0_8px_18px_rgba(48,37,29,0.04)]" />
-              ))}
-            </div>
-          </div>
-        </form>
-
-        <div className="mt-5 flex items-center justify-end gap-2">
           <button
             type="button"
             onClick={() => navigate("/admin/products")}
-            className="rounded-[12px] border border-soil/8 bg-white px-4 py-2.5 text-sm text-soil"
+            className="inline-flex items-center gap-2 self-start rounded-[12px] border border-soil/10 bg-white px-4 py-2.5 text-sm font-medium text-soil shadow-[0_4px_10px_rgba(48,37,29,0.03)]"
           >
-            Cancel
-          </button>
-          <button
-            type="button"
-            className="rounded-[12px] border border-soil/8 bg-[#f8f7f3] px-4 py-2.5 text-sm text-soil"
-            onClick={() => setForm(emptyForm)}
-          >
-            Reset
-          </button>
-          <button
-            type="submit"
-            form="product-form"
-            disabled={saveMutation.isPending}
-            className="rounded-[12px] bg-[#0e8a66] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_8px_18px_rgba(14,138,102,0.16)] disabled:opacity-60"
-          >
-            <Plus className="h-4 w-4" />
-            {saveMutation.isPending ? "Saving..." : actionLabel}
+            <ArrowLeft className="h-4 w-4" />
+            Back to Products
           </button>
         </div>
       </section>
+
+      <form id="product-form" onSubmit={handleSubmit} className="grid gap-5 xl:grid-cols-[1.08fr_0.92fr]">
+        <div className="space-y-5">
+          <Panel title="Product Information">
+            <div className="grid gap-4 md:grid-cols-2">
+              <TextField
+                label="Product Name"
+                required
+                value={form.name}
+                onChange={(value) => updateField("name", value)}
+                placeholder="Organic Red Apples"
+              />
+              <SelectField
+                label="Category"
+                required
+                value={form.category}
+                options={categoryOptions.map((option) => ({ value: option.value, label: option.label }))}
+                onChange={(value) => {
+                  const nextCategory = value as AdminProductInput["category"];
+                  const nextSubCategory = categoryOptions.find((entry) => entry.value === nextCategory)?.subCategories[0] ?? "";
+                  updateField("category", nextCategory);
+                  updateField("subCategory", nextSubCategory);
+                }}
+              />
+              <TextField
+                label="Price (INR)"
+                required
+                value={form.price}
+                onChange={(value) => updateField("price", value)}
+                prefix="Rs."
+                placeholder="325"
+              />
+              <TextField
+                label="Discount Price (Optional)"
+                value={form.mrp}
+                onChange={(value) => updateField("mrp", value)}
+                prefix="Rs."
+                placeholder="299"
+              />
+              <TextField
+                label="SKU"
+                required
+                value={form.slug}
+                onChange={(value) => updateField("slug", value)}
+                placeholder="ORG-APP-001"
+              />
+              <TextField
+                label="Stock Quantity"
+                required
+                value={form.stock}
+                onChange={(value) => updateField("stock", value)}
+                placeholder="85"
+              />
+            </div>
+
+            <div className="mt-4">
+              <TextField
+                label="Short Description"
+                value={form.shortDescription}
+                onChange={(value) => updateField("shortDescription", value)}
+                placeholder="Fresh and crisp apples full of nutrients."
+              />
+            </div>
+
+            <div className="mt-4">
+              <label className="grid gap-2">
+                <span className="text-sm font-medium text-soil/72">Full Description</span>
+                <div className="overflow-hidden rounded-[14px] border border-soil/10 bg-white">
+                  <div className="flex flex-wrap items-center gap-2 border-b border-soil/8 px-3 py-2.5 text-soil/60">
+                    {[
+                      Bold,
+                      Italic,
+                      Underline,
+                      List,
+                      ListOrdered,
+                      Link2
+                    ].map((Icon, index) => (
+                      <span key={index} className="grid h-8 w-8 place-items-center rounded-[10px] border border-soil/8 bg-[#fbfaf8]">
+                        <Icon className="h-4 w-4" />
+                      </span>
+                    ))}
+                  </div>
+                  <textarea
+                    rows={6}
+                    value={form.description}
+                    onChange={(event) => updateField("description", event.target.value)}
+                    placeholder="Describe the product, sourcing story, and why customers will love it."
+                    className="w-full resize-none border-0 bg-white px-4 py-3 text-sm leading-7 outline-none"
+                  />
+                </div>
+              </label>
+            </div>
+          </Panel>
+
+          <Panel title="SEO Information (Optional)">
+            <div className="grid gap-4">
+              <TextField
+                label="Meta Title"
+                value={form.metaTitle}
+                onChange={(value) => updateField("metaTitle", value)}
+                placeholder="Organic Red Apples - Fresh and Healthy"
+              />
+              <TextField
+                label="Meta Description"
+                value={form.metaDescription}
+                onChange={(value) => updateField("metaDescription", value)}
+                placeholder="Buy organic red apples online. Fresh, healthy and chemical free apples."
+              />
+              <TextField
+                label="Meta Keywords"
+                value={form.metaKeywords}
+                onChange={(value) => updateField("metaKeywords", value)}
+                placeholder="organic apples, red apples, fresh apples, healthy fruits"
+              />
+            </div>
+          </Panel>
+        </div>
+
+        <div className="space-y-5">
+          <Panel title="Product Images">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {imageGallery.map((image, index) => (
+                <div key={index} className="relative overflow-hidden rounded-[16px] border border-soil/10 bg-[#f4f5f0]">
+                  <img src={image} alt={`${form.name || "Product"} preview ${index + 1}`} className="h-28 w-full object-cover" />
+                  <button
+                    type="button"
+                    className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-white/95 text-soil shadow-[0_4px_10px_rgba(48,37,29,0.12)]"
+                    aria-label="Preview image"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
+              <label className="grid h-28 cursor-pointer place-items-center rounded-[16px] border border-dashed border-soil/20 bg-[#fbfaf8] text-center text-soil/60">
+                <div className="grid justify-items-center gap-2 px-3">
+                  <Upload className="h-5 w-5" />
+                  <span className="text-sm font-medium">Upload More</span>
+                </div>
+              </label>
+            </div>
+            <p className="mt-3 text-xs text-soil/50">Upload up to 5 images. JPG, PNG or WEBP. For now, use the Image URL field below.</p>
+            <div className="mt-4">
+              <TextField
+                label="Primary Image URL"
+                value={form.image}
+                onChange={(value) => updateField("image", value)}
+                placeholder="https://..."
+              />
+            </div>
+          </Panel>
+
+          <Panel title="Category & Tags">
+            <div className="grid gap-4 md:grid-cols-2">
+              <SelectField
+                label="Category"
+                required
+                value={form.category}
+                options={categoryOptions.map((option) => ({ value: option.value, label: option.label }))}
+                onChange={(value) => updateField("category", value as AdminProductInput["category"])}
+              />
+              <SelectField
+                label="Sub Category"
+                value={form.subCategory}
+                options={categoryMeta.subCategories.map((option) => ({ value: option, label: option }))}
+                onChange={(value) => updateField("subCategory", value)}
+              />
+            </div>
+
+            <div className="mt-4 grid gap-2">
+              <span className="text-sm font-medium text-soil/72">Tags</span>
+              <div className="flex min-h-[52px] flex-wrap items-center gap-2 rounded-[14px] border border-soil/10 bg-white px-3 py-2.5">
+                {tagItems.length > 0 ? (
+                  tagItems.map((tag) => (
+                    <span key={tag} className="inline-flex items-center gap-1 rounded-full bg-[#e9f6ee] px-3 py-1 text-xs font-medium text-[#157c57]">
+                      {titleCase(tag)}
+                      <X className="h-3 w-3" />
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-sm text-soil/35">Add comma separated tags below</span>
+                )}
+              </div>
+              <input
+                value={form.tags}
+                onChange={(event) => updateField("tags", event.target.value)}
+                className="rounded-[14px] border border-soil/10 bg-white px-4 py-3 text-sm outline-none"
+                placeholder="Organic, Red Apple, Fresh"
+              />
+            </div>
+          </Panel>
+
+          <Panel title="Product Details">
+            <div className="grid gap-4 md:grid-cols-2">
+              <TextField
+                label="Brand"
+                value={form.brand}
+                onChange={(value) => updateField("brand", value)}
+                placeholder="Shop Organic"
+              />
+              <SelectField
+                label="Unit"
+                value={form.unit}
+                options={unitOptions.map((option) => ({ value: option, label: option }))}
+                onChange={(value) => updateField("unit", value)}
+              />
+              <TextField
+                label="Minimum Order Quantity"
+                value={form.minimumOrderQuantity}
+                onChange={(value) => updateField("minimumOrderQuantity", value)}
+                placeholder="1"
+              />
+              <TextField
+                label="HSN Code (Optional)"
+                value={form.hsnCode}
+                onChange={(value) => updateField("hsnCode", value)}
+                placeholder="0808"
+              />
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-5">
+              <CheckboxField
+                label="This is Organic Product"
+                checked={form.isOrganic}
+                onChange={(value) => updateField("isOrganic", value)}
+              />
+              <CheckboxField
+                label="This is Featured Product"
+                checked={form.isFeatured}
+                onChange={(value) => {
+                  updateField("isFeatured", value);
+                  updateField("badge", value ? "Featured" : form.badge || "New");
+                }}
+              />
+              <CheckboxField
+                label="Allow Cash on Delivery"
+                checked={form.allowCashOnDelivery}
+                onChange={(value) => updateField("allowCashOnDelivery", value)}
+              />
+            </div>
+          </Panel>
+
+          <Panel title="Product Status">
+            <div className="grid gap-4">
+              <SelectField
+                label="Status"
+                required
+                value={form.isActive ? "Active" : "Inactive"}
+                options={[
+                  { value: "Active", label: "Active" },
+                  { value: "Inactive", label: "Inactive" }
+                ]}
+                onChange={(value) => updateField("isActive", value === "Active")}
+              />
+              <div className="rounded-[14px] border border-[#e4efe8] bg-[#f8fcf9] px-4 py-3 text-sm text-soil/70">
+                <div className="flex items-center justify-between gap-3">
+                  <span>Preview badge</span>
+                  <span className="rounded-full bg-[#e5f7e8] px-2.5 py-1 text-xs font-semibold text-[#0e8a66]">
+                    {form.badge || "New"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </Panel>
+        </div>
+      </form>
+
+      <div className="sticky bottom-0 z-10 flex flex-col gap-3 rounded-[20px] border border-soil/8 bg-white/95 px-5 py-4 backdrop-blur sm:flex-row sm:items-center sm:justify-end">
+        <button
+          type="button"
+          onClick={() => navigate("/admin/products")}
+          className="rounded-[12px] border border-soil/10 bg-white px-5 py-3 text-sm font-medium text-soil"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          onClick={() => setForm(emptyForm)}
+          className="rounded-[12px] bg-[#0c7a52] px-5 py-3 text-sm font-semibold text-white shadow-[0_8px_18px_rgba(12,122,82,0.18)]"
+        >
+          Save as Draft
+        </button>
+        <button
+          type="submit"
+          form="product-form"
+          disabled={saveMutation.isPending}
+          className="inline-flex items-center justify-center gap-2 rounded-[12px] bg-[#ff7b47] px-5 py-3 text-sm font-semibold text-white shadow-[0_8px_18px_rgba(255,123,71,0.22)] disabled:opacity-60"
+        >
+          {saveMutation.isPending ? <ImagePlus className="h-4 w-4 animate-pulse" /> : <Plus className="h-4 w-4" />}
+          {saveMutation.isPending ? "Saving..." : actionLabel}
+        </button>
+      </div>
     </div>
   );
 }
 
-function SectionInput({
+function Panel({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="rounded-[20px] border border-soil/8 bg-white p-5 shadow-[0_8px_22px_rgba(48,37,29,0.04)]">
+      <h2 className="text-[1.05rem] font-semibold tracking-[-0.03em] text-soil">{title}</h2>
+      <div className="mt-4">{children}</div>
+    </section>
+  );
+}
+
+function TextField({
   label,
   value,
-  onChange
+  onChange,
+  placeholder,
+  required,
+  prefix
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
+  placeholder?: string;
+  required?: boolean;
+  prefix?: string;
 }) {
   return (
     <label className="grid gap-2">
-      <span className="text-sm font-medium text-soil/70">{label}</span>
-      <input value={value} onChange={(event) => onChange(event.target.value)} className="rounded-[12px] border border-soil/8 bg-[#faf8f4] px-4 py-3 text-sm outline-none" />
+      <span className="text-sm font-medium text-soil/72">
+        {label}
+        {required ? <span className="ml-1 text-[#ff7b47]">*</span> : null}
+      </span>
+      <div className="flex overflow-hidden rounded-[12px] border border-soil/10 bg-white">
+        {prefix ? (
+          <span className="grid place-items-center border-r border-soil/8 px-3 text-sm text-soil/55">{prefix}</span>
+        ) : null}
+        <input
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          placeholder={placeholder}
+          className="w-full border-0 px-4 py-3 text-sm outline-none"
+        />
+      </div>
     </label>
   );
 }
@@ -329,20 +582,29 @@ function SelectField({
   label,
   value,
   options,
-  onChange
+  onChange,
+  required
 }: {
   label: string;
   value: string;
-  options: string[];
+  options: Array<{ value: string; label: string }>;
   onChange: (value: string) => void;
+  required?: boolean;
 }) {
   return (
     <label className="grid gap-2">
-      <span className="text-sm font-medium text-soil/70">{label}</span>
-      <select value={value} onChange={(event) => onChange(event.target.value)} className="rounded-[12px] border border-soil/8 bg-[#faf8f4] px-4 py-3 text-sm outline-none">
+      <span className="text-sm font-medium text-soil/72">
+        {label}
+        {required ? <span className="ml-1 text-[#ff7b47]">*</span> : null}
+      </span>
+      <select
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="rounded-[12px] border border-soil/10 bg-white px-4 py-3 text-sm outline-none"
+      >
         {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
+          <option key={option.value} value={option.value}>
+            {option.label}
           </option>
         ))}
       </select>
@@ -350,11 +612,24 @@ function SelectField({
   );
 }
 
-function InfoRow({ label, value }: { label: string; value: string }) {
+function CheckboxField({
+  label,
+  checked,
+  onChange
+}: {
+  label: string;
+  checked: boolean;
+  onChange: (value: boolean) => void;
+}) {
   return (
-    <div className="flex items-center justify-between rounded-[12px] bg-[#faf8f4] px-3 py-2.5">
+    <label className="inline-flex items-center gap-2 text-sm text-soil/78">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(event) => onChange(event.target.checked)}
+        className="h-4 w-4 rounded border-soil/20 text-[#0e8a66] focus:ring-[#0e8a66]"
+      />
       <span>{label}</span>
-      <span className="font-medium text-soil">{value}</span>
-    </div>
+    </label>
   );
 }
