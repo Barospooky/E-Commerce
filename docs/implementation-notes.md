@@ -10,8 +10,9 @@
 ## Next Build Steps
 
 1. Run `npm install`.
-2. Copy `server/.env.example` to `server/.env` and configure PostgreSQL.
-3. Run `npm run prisma:generate -w server`.
-4. Run `npm run prisma:migrate -w server` after database is available.
-5. Replace mock route responses with Prisma-backed controllers.
-6. Add real JWT refresh-token cookies, payment gateway integration, image upload and admin CRUD forms.
+2. Start the local database stack with `npm run docker:db:up`.
+3. Copy `server/.env.example` to `server/.env` and configure PostgreSQL.
+4. Run `npm run prisma:generate -w server`.
+5. Run `npm run prisma:migrate -w server` after database is available.
+6. Replace mock route responses with Prisma-backed controllers.
+7. Add real JWT refresh-token cookies, payment gateway integration, image upload and admin CRUD forms.

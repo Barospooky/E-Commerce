@@ -36,9 +36,9 @@ const links = [
 
 export default function AdminLayout() {
   return (
-    <div className="h-screen overflow-hidden bg-white text-ink">
-      <div className="mx-auto flex h-screen max-w-[1600px] gap-0 px-0 py-0">
-        <aside className="admin-sidebar hidden h-screen w-[224px] flex-col overflow-hidden bg-gradient-to-b from-[#0d6a43] via-[#0c5f3b] to-[#094f31] text-white shadow-[0_18px_40px_rgba(10,84,52,0.22)] lg:flex">
+    <div className="min-h-dvh overflow-hidden bg-white text-ink">
+      <div className="mx-auto flex min-h-dvh max-w-[1600px] gap-0 px-0 py-0">
+        <aside className="admin-sidebar hidden min-h-dvh w-[224px] shrink-0 flex-col overflow-hidden text-white shadow-[0_18px_40px_rgba(10,84,52,0.22)] lg:flex">
           <div className="shrink-0 border-b border-[#e8ece8] bg-white px-4 py-3.5 text-ink">
             <Link to="/admin" className="flex items-center gap-3">
               <img src={brand.logoUrl} alt="Shop Organic" className="h-10 w-10 object-contain" />
@@ -115,7 +115,7 @@ export default function AdminLayout() {
           </div>
         </aside>
 
-        <main className="flex h-screen min-h-0 flex-1 flex-col overflow-hidden bg-white">
+        <main className="flex min-h-dvh min-w-0 flex-1 flex-col overflow-hidden bg-white">
           <header className="flex items-center justify-between border-b border-soil/8 bg-white px-4 py-3.5">
             <div className="flex items-center gap-3.5">
               <button type="button" className="grid h-8 w-8 place-items-center text-soil" aria-label="Menu">

@@ -1,0 +1,13 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "Amplepro Local Postgres",
+      "Group": "Servers",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "ample_organic_commerce",
+      "Username": "ample_user",
+      "SSLMode": "prefer"
+    }
+  }
+}

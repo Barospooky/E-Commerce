@@ -4,9 +4,10 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light;
+  color-scheme: only light;
   font-family: "Manrope", Verdana, sans-serif;
   background: #ffffff;
+  forced-color-adjust: none;
 }
 
 * {
@@ -15,13 +16,18 @@
 
 html {
   scroll-behavior: smooth;
+  min-height: 100dvh;
+  background: #ffffff;
 }
 
-body {
+body,
+#root {
   margin: 0;
   min-width: 320px;
-  min-height: 100vh;
+  min-height: 100dvh;
   background: #ffffff;
+  color: #30251d;
+  forced-color-adjust: none;
 }
 
 ::selection {
@@ -37,6 +43,22 @@ input::placeholder {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.32) transparent;
   scrollbar-gutter: stable;
+}
+
+.admin-sidebar {
+  position: relative;
+  isolation: isolate;
+  background-color: #0c5f3b;
+  background-image: linear-gradient(180deg, #0d6a43 0%, #0c5f3b 48%, #094f31 100%);
+  forced-color-adjust: none;
+}
+
+.admin-sidebar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, #0d6a43 0%, #0c5f3b 48%, #094f31 100%);
 }
 
 .admin-sidebar-menu::-webkit-scrollbar {

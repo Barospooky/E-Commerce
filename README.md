@@ -31,3 +31,28 @@ Update `client/src/config/brand.ts` to replace the temporary Ample Pro logo, col
 ## Environment
 
 Copy `server/.env.example` to `server/.env` and fill in local database/auth settings before running Prisma migrations.
+
+## Docker Database + pgAdmin
+
+1. Copy `.env.docker.example` to `.env` if you want to customize the Docker credentials and ports.
+2. Start PostgreSQL and pgAdmin:
+
+```bash
+npm run docker:db:up
+```
+
+3. Copy `server/.env.example` to `server/.env` and set:
+
+```bash
+DATABASE_URL="postgresql://ample_user:ample_password@localhost:5432/ample_organic_commerce"
+```
+
+4. Generate Prisma client and run migrations:
+
+```bash
+npm run prisma:generate -w server
+npm run prisma:migrate -w server
+```
+
+5. Open pgAdmin at `http://localhost:5050` and sign in with the credentials from `.env.docker.example`.
+6. The server entry is preloaded as `Amplepro Local Postgres`. If pgAdmin asks for the database password, use the `POSTGRES_PASSWORD` value.
